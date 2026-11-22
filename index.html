@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Munkanaptár · Marcell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12141d;--bg-2:#161925;--surface:#1c2030;--surface-2:#232838;--line:#2c3242;--line-soft:#242a38;--text:#e9ebf2;--dim:#8b91a6;--faint:#5a6076;--amber:#f5a623;--amber-soft:rgba(245,166,35,.14);--amber-line:rgba(245,166,35,.42);--red:#ff6b6f;--radius:14px;--rs:9px;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(to bottom,rgba(245,166,35,.10),transparent 320px),radial-gradient(900px 500px at -10% 110%,rgba(62,201,192,.05),transparent 55%),var(--bg);background-repeat:no-repeat;background-attachment:fixed,fixed,scroll;color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.4}
+.wrap{max-width:760px;margin:0 auto;padding:22px 14px 40px}
+button{font-family:inherit;cursor:pointer;color:inherit;border:none;background:none}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);font-weight:600}
+h1{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(21px,4vw,28px);letter-spacing:-.01em}
+h1 .who{color:var(--amber)}
+.totals{display:flex;flex-wrap:wrap;gap:10px;width:100%}
+.stat{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);padding:11px 16px;flex:1 1 100px;min-width:96px}
+.stat .label{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:3px}
+.stat .value{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .value.accent{color:var(--amber)}
+.stat .value small{font-size:12px;font-weight:500;color:var(--dim);margin-left:2px}
+.navbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.month-label{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;text-transform:capitalize;white-space:nowrap}
+.month-label .yr{color:var(--dim);font-weight:500;margin-left:6px}
+.navbtns{display:flex;gap:6px;margin-left:auto}
+.icon-btn{width:38px;height:38px;border-radius:var(--rs);background:var(--surface);border:1px solid var(--line-soft);color:var(--dim);font-size:16px;display:grid;place-items:center;transition:.15s}
+.icon-btn:hover{background:var(--surface-2);color:var(--text);border-color:var(--line)}
+.today-btn{height:38px;padding:0 14px;border-radius:var(--rs);background:var(--surface);border:1px solid var(--line-soft);font-weight:500;font-size:13.5px}
+.today-btn:hover{background:var(--surface-2)}
+.cal{background:var(--bg-2);border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden}
+.weekdays,.grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.weekdays{border-bottom:1px solid var(--line-soft)}
+.weekdays div{text-align:center;padding:10px 2px;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.weekdays div.we{color:var(--amber);opacity:.75}
+.cell{min-height:86px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);padding:5px 4px 6px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0;transition:background .12s}
+.cell:nth-child(7n){border-right:none}
+.cell:hover{background:var(--surface)}
+.cell.we{background:rgba(245,166,35,.035)}
+.cell.out{cursor:default;pointer-events:none}
+.daynum{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:var(--dim);width:24px;height:24px;display:grid;place-items:center;border-radius:7px}
+.cell.we .daynum{color:var(--amber)}
+.cell.today .daynum{background:var(--text);color:var(--bg);font-weight:700}
+.shifts{display:flex;flex-direction:column;gap:3px;min-width:0}
+.chip{border-radius:6px;padding:2px 4px;font-size:10.5px;line-height:1.25;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--amber-soft);border:1px solid var(--amber-line);color:var(--amber);text-align:center}
+.selbar{display:none;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px}
+.selbar.open{display:flex}
+.selcount{font-size:13px;color:var(--dim);white-space:nowrap}.selcount b{font-family:'Space Grotesk',sans-serif;color:var(--text);font-size:15px}
+.selbar .selbtn{flex:0 0 auto;height:34px}
+.selbtn.done{background:var(--amber);color:#1a1304;border-color:transparent;font-weight:600}
+.selbtn.delb{color:var(--red);border-color:rgba(229,72,77,.3)}
+.cell.sel{background:var(--amber-soft);box-shadow:inset 0 0 0 2px var(--amber)}
+.today-btn.on{background:var(--amber);color:#1a1304;border-color:transparent;font-weight:600}
+.pay{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--amber-line);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px}
+.pay .pl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.pay .pd{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin-top:2px}
+.pay .pvv{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--amber);text-align:right;font-variant-numeric:tabular-nums}
+.pay .ps{font-size:11px;color:var(--dim);text-align:right}
+.badge{border-radius:6px;padding:2px 4px;font-size:10px;font-weight:600;text-align:center;white-space:nowrap}
+.badge.off{background:rgba(139,145,166,.16);border:1px solid var(--line);color:var(--dim)}
+.badge.vac{background:rgba(62,201,192,.15);border:1px solid rgba(62,201,192,.42);color:#3ec9c0}
+.cell.vac{background:rgba(62,201,192,.05)}
+.cell.off{background:rgba(139,145,166,.06)}
+.selbtn.vacb{color:#3ec9c0;border-color:rgba(62,201,192,.42)}
+.dh{display:flex;align-items:center;gap:3px}
+.wdn{font-size:9px;color:var(--faint);letter-spacing:.02em}
+.wdn i{font-style:normal}.wdn .f{display:none}
+.cell.we .wdn{color:var(--amber);opacity:.6}
+@media(min-width:620px){.wdn .f{display:inline}.wdn .a{display:none}}
+.scrim{position:fixed;inset:0;background:rgba(8,9,14,.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+.scrim.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:18px;width:100%;max-width:430px;max-height:86vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.modal-head{padding:18px 20px 12px;border-bottom:1px solid var(--line-soft);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surface);z-index:2}
+.dow{font-size:12px;font-weight:600;letter-spacing:.04em;margin-bottom:2px;color:var(--amber)}
+.modal-head h2{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600}
+.close-x{width:32px;height:32px;border-radius:8px;background:var(--surface-2);color:var(--dim);font-size:18px;display:grid;place-items:center;flex:none}
+.modal-body{padding:14px 20px 20px}
+.shift-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.shift-row{display:flex;align-items:center;gap:12px;background:var(--bg-2);border:1px solid var(--line-soft);border-radius:10px;padding:9px 12px}
+.shift-row .time{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;white-space:nowrap}
+.shift-row .meta{flex:1;font-size:12px;color:var(--amber);font-weight:600}
+.del{width:30px;height:30px;border-radius:8px;color:var(--faint);font-size:15px;display:grid;place-items:center}
+.del:hover{color:var(--red);background:rgba(229,72,77,.12)}
+.empty{font-size:13px;color:var(--faint);text-align:center;padding:6px 0 10px}
+.qrow{display:flex;gap:8px;margin-bottom:14px}
+.selbtn{flex:1;height:40px;padding:0 10px;border-radius:8px;background:var(--bg-2);border:1px solid var(--line);font-size:13px;font-weight:500;white-space:nowrap}
+.selbtn:hover{background:var(--surface-2)}
+.selbtn.q{border-color:var(--amber-line);color:var(--amber)}
+.form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.form.two{grid-template-columns:1fr 1fr}
+label{display:block;font-size:11px;color:var(--faint);margin-bottom:3px;letter-spacing:.04em}
+input,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px;color-scheme:dark}
+input:focus{outline:none;border-color:var(--amber-line)}
+.sub{font-size:12.5px;color:var(--dim);margin:6px 0 10px}
+.save{width:100%;height:42px;border-radius:10px;background:var(--amber);color:#1a1304;font-weight:600;font-size:14px}
+.save:hover{filter:brightness(1.08)}
+.gear{margin-top:16px;width:100%;color:var(--faint);font-size:12.5px;padding:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <span class="eyebrow">Beosztás · ALDI</span>
+      <h1>Munkanaptár · <span class="who">Marcell</span></h1>
+    </div>
+    <div class="totals">
+      <div class="stat"><div class="label">Műszak / hó</div><div class="value" id="sc">0</div></div>
+      <div class="stat"><div class="label">Óra / hó</div><div class="value accent" id="sh">0</div></div>
+      <div class="stat"><div class="label">Kereset / hó</div><div class="value" id="se">0<small> Ft</small></div></div>
+    </div>
+  </header>
+
+  <div class="pay"><div><div class="pl">Fizetés napja</div><div class="pd" id="pd">—</div></div><div><div class="pvv" id="pamt">0 Ft</div><div class="ps" id="pnote"></div></div></div>
+
+  <div class="navbar">
+    <div class="month-label" id="ml">—</div>
+    <div class="navbtns">
+      <button class="today-btn" id="seltog">Kijelölés</button>
+      <button class="today-btn" id="today">Ma</button>
+      <button class="icon-btn" id="pv" aria-label="Előző hónap">‹</button>
+      <button class="icon-btn" id="nx" aria-label="Következő hónap">›</button>
+    </div>
+  </div>
+
+  <div class="selbar" id="selbar">
+    <button class="selbtn done" id="seldone">Kész</button>
+    <span class="selcount"><b id="selc">0</b> nap</span>
+    <button class="selbtn selq" data-s="06:00" data-e="12:30">+ Délelőtt 6–12:30</button>
+    <button class="selbtn selq" data-s="14:00" data-e="20:30">+ Délután 14–20:30</button>
+    <button class="selbtn offb" data-m="off">Szabadnap</button>
+    <button class="selbtn vacb" data-m="vac">Szabadság</button>
+    <button class="selbtn delb" id="seldel">Törlés</button>
+  </div>
+
+  <div class="cal">
+    <div class="weekdays"><div>H</div><div>K</div><div>Sz</div><div>Cs</div><div>P</div><div class="we">Sz</div><div class="we">V</div></div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <button class="gear" id="gear">⚙ Bér beállítások</button>
+</div>
+
+<div class="scrim" id="m1"><div class="modal">
+  <div class="modal-head"><div><div class="dow" id="dw"></div><h2 id="dt"></h2></div><button class="close-x" data-c>×</button></div>
+  <div class="modal-body">
+    <div class="shift-list" id="sl"></div>
+    <div class="qrow">
+      <button class="selbtn q" data-s="06:00" data-e="12:30">+ Délelőtt 6–12:30</button>
+      <button class="selbtn q" data-s="14:00" data-e="20:30">+ Délután 14–20:30</button>
+    </div>
+    <div class="qrow"><button class="selbtn" data-dm="off">Szabadnap</button><button class="selbtn vacb" data-dm="vac">Szabadság</button></div>
+    <div class="form">
+      <div><label>Mettől</label><input type="time" id="s" value="06:00"></div>
+      <div><label>Meddig</label><input type="time" id="e" value="12:30"></div>
+      <div><label>Szünet (p)</label><input type="number" id="b" value="30" min="0" inputmode="numeric"></div>
+    </div>
+    <div class="sub" id="pre"></div>
+    <button class="save" id="add">Egyedi műszak hozzáadása</button>
+  </div>
+</div></div>
+
+<div class="scrim" id="m2"><div class="modal">
+  <div class="modal-head"><div><div class="dow">Beállítások</div><h2>Bér</h2></div><button class="close-x" data-c>×</button></div>
+  <div class="modal-body">
+    <div class="form two">
+      <div><label>Alapbér / hó (bruttó)</label><input type="number" id="base" inputmode="decimal"></div>
+      <div><label>Műszakpótlék átalány</label><input type="number" id="sf" inputmode="decimal"></div>
+      <div><label>Rendkívüli átalány</label><input type="number" id="ot" inputmode="decimal"></div>
+      <div><label>Levonás (%)</label><input type="number" id="tax" inputmode="decimal"></div>
+      <div><label>Havi teljes óraszám (=100%)</label><input type="number" id="mh" inputmode="decimal"></div>
+      <div><label>Órabér (ha nincs havi)</label><input type="number" id="rate" inputmode="decimal"></div>
+      <div><label>Napi munkaidő</label><select id="hrs"><option value="6">6 óra (próbaidő)</option><option value="8">8 óra</option></select></div>
+    </div>
+    <div class="sub">A havi kereset a fix összegek időarányos része: ledolgozott óra ÷ havi teljes óraszám. Ha a teljes óraszám üres, 174 óra számít (8 órás napnál), 6 órás napnál ennek időarányos része, 130,5 óra. Az órabér csak akkor számít, ha az alapbér és az átalányok 0-n vannak.</div>
+  </div>
+</div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let S={rate:0,tax:0,base:320925,sf:61000,ot:24500,mh:0,hrs:6},L=[],M={};
+try{Object.assign(S,JSON.parse(localStorage.getItem('mf_s')||'{}'));L=JSON.parse(localStorage.getItem('mf_l')||'[]');M=JSON.parse(localStorage.getItem('mf_m')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('mf_s',JSON.stringify(S));localStorage.setItem('mf_l',JSON.stringify(L));localStorage.setItem('mf_m',JSON.stringify(M))}catch(e){}};
+const pad=n=>String(n).padStart(2,'0');
+const WF=['vasárnap','hétfő','kedd','szerda','csütörtök','péntek','szombat'],WA=['vas','hét','ked','sze','csü','pén','szo'];
+const iso=(y,m,d)=>y+'-'+pad(m+1)+'-'+pad(d);
+const now=new Date(),todayIso=iso(now.getFullYear(),now.getMonth(),now.getDate());
+let cur={y:now.getFullYear(),m:now.getMonth()},sel=todayIso;const picked=new Set();
+const tm=v=>{const[a,b]=v.split(':').map(Number);return a*60+b};
+const mins=x=>{let a=tm(x.s),b=tm(x.e);if(b<=a)b+=1440;return Math.max(0,b-a-(+x.b||0))};
+const fmt=m=>Math.floor(m/60)+' ó '+pad(Math.round(m%60))+' p';
+const ft=n=>Math.round(n).toLocaleString('hu-HU');
+const sh=t=>{const[h,m]=t.split(':');return (+h)+(m==='00'?'':':'+m)};
+function render(){
+  const{y,m}=cur;
+  $('ml').innerHTML=new Date(y,m,1).toLocaleDateString('hu-HU',{month:'long'})+' <span class="yr">'+y+'</span>';
+  const pre=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate();
+  let h='',tot=0,cnt=0,vd=0;
+  for(let i=0;i<pre;i++)h+='<div class="cell out"></div>';
+  for(let d=1;d<=dim;d++){
+    const dt=iso(y,m,d),wi=new Date(y,m,d).getDay(),it=L.filter(x=>x.d===dt).sort((a,b)=>tm(a.s)-tm(b.s));
+    it.forEach(x=>{tot+=mins(x);cnt++});if(M[dt]==='vac')vd++;
+    h+=`<div class="cell${(pre+d-1)%7>=5?' we':''}${dt===todayIso?' today':''}${picked.has(dt)?' sel':''}${M[dt]?' '+M[dt]:''}" data-d="${dt}"><div class="dh"><div class="daynum">${d}</div><span class="wdn"><i class="f">${WF[wi]}</i><i class="a">${WA[wi]}</i></span></div><div class="shifts">${M[dt]?`<div class="badge ${M[dt]}">${M[dt]==='vac'?'Szabi':'Szabad'}</div>`:''}${it.map(x=>`<div class="chip">${sh(x.s)}–${sh(x.e)}</div>`).join('')}</div></div>`;
+  }
+  const rest=(7-(pre+dim)%7)%7;for(let i=0;i<rest;i++)h+='<div class="cell out"></div>';
+  $('grid').innerHTML=h;
+  const fix=(S.base||0)+(S.sf||0)+(S.ot||0);
+  let wd=0;for(let d=1;d<=dim;d++){const w=new Date(y,m,d).getDay();if(w>0&&w<6)wd++}
+  const norm=(S.mh>0?S.mh:174*(S.hrs||6)/8)*60,share=norm?Math.min(1,(tot+vd*(S.hrs||6)*60)/norm):0;
+  const gross=fix>0?fix*share:(S.rate||0)*tot/60;
+  $('sc').textContent=cnt;
+  $('sh').innerHTML=Math.floor(tot/60)+'<small>ó '+pad(tot%60)+'p'+(S.mh?' / '+S.mh+'ó':'')+'</small>';
+  const net=gross*(1-(S.tax||0)/100);
+  $('se').innerHTML=ft(net)+'<small> Ft</small>';
+  $('pd').textContent=new Date(y,m+1,10).toLocaleDateString('hu-HU',{year:'numeric',month:'long',day:'numeric'})+' (legkésőbb)';
+  $('pamt').textContent='≈ '+ft(net)+' Ft';
+  $('pnote').textContent=new Date(y,m,1).toLocaleDateString('hu-HU',{month:'long'})+' havi munkáért'+(fix>0?' · a havi összeg '+Math.round(share*100)+'%-a':'')+(vd?' · '+vd+' nap szabadság':'');
+}
+function openDay(dt){
+  sel=dt;const d=new Date(dt+'T00:00:00');
+  $('dw').textContent=d.toLocaleDateString('hu-HU',{weekday:'long'});
+  $('dt').textContent=d.toLocaleDateString('hu-HU',{month:'long',day:'numeric'});
+  const it=L.filter(x=>x.d===dt).sort((a,b)=>tm(a.s)-tm(b.s));
+  $('sl').innerHTML=it.length?it.map(x=>`<div class="shift-row"><div class="time">${x.s}–${x.e}</div><div class="meta">${fmt(mins(x))}${x.b?' · szünet '+x.b+' p':''}</div><button class="del" data-i="${x.id}">✕</button></div>`).join(''):(M[dt]?'<div class="empty">'+(M[dt]==='vac'?'Szabadság':'Szabadnap')+' ezen a napon.</div>':'<div class="empty">Nincs műszak ezen a napon.</div>');
+  prev();$('m1').classList.add('open');
+}
+function prev(){$('pre').textContent='Fizetett idő: '+fmt(mins({s:$('s').value||'00:00',e:$('e').value||'00:00',b:$('b').value}))}
+function addShift(s,e,b){
+  delete M[sel];L.push({id:Date.now()+Math.random(),d:sel,s,e,b});save();render();openDay(sel);
+}
+let selMode=false,dq=0;
+function selUI(){$('selbar').classList.toggle('open',selMode);$('seltog').classList.toggle('on',selMode);$('selc').textContent=picked.size}
+$('seltog').onclick=()=>{selMode=!selMode;if(!selMode)picked.clear();selUI();render()};
+$('seldone').onclick=()=>{selMode=false;picked.clear();selUI();render()};
+document.querySelectorAll('.selq').forEach(b=>b.onclick=()=>{
+  if(!picked.size)return;
+  picked.forEach(dt=>{delete M[dt];if(!L.some(x=>x.d===dt&&x.s===b.dataset.s&&x.e===b.dataset.e))L.push({id:Date.now()+Math.random(),d:dt,s:b.dataset.s,e:b.dataset.e,b:30})});
+  save();render()});
+$('seldel').onclick=()=>{
+  if(!picked.size)return;
+  if(!dq){dq=1;$('seldel').textContent='Biztos?';setTimeout(()=>{dq=0;$('seldel').textContent='Törlés'},2500);return}
+  dq=0;$('seldel').textContent='Törlés';L=L.filter(x=>!picked.has(x.d));picked.forEach(dt=>delete M[dt]);save();picked.clear();selUI();render()};
+$('grid').onclick=e=>{const c=e.target.closest('.cell[data-d]');if(!c)return;const dt=c.dataset.d;if(selMode){picked.has(dt)?picked.delete(dt):picked.add(dt);c.classList.toggle('sel');selUI()}else openDay(dt)};
+$('sl').onclick=e=>{const i=e.target.closest('[data-i]');if(i){L=L.filter(x=>x.id!=i.dataset.i);save();render();openDay(sel)}};
+document.querySelectorAll('.qrow [data-s]').forEach(b=>b.onclick=()=>addShift(b.dataset.s,b.dataset.e,30));
+$('add').onclick=()=>{if($('s').value&&$('e').value)addShift($('s').value,$('e').value,+$('b').value||0)};
+['s','e','b'].forEach(i=>$(i).oninput=prev);
+document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>b.closest('.scrim').classList.remove('open'));
+document.querySelectorAll('.scrim').forEach(s=>s.onclick=e=>{if(e.target===s)s.classList.remove('open')});
+$('gear').onclick=()=>$('m2').classList.add('open');
+['base','sf','ot','tax','mh','rate'].forEach(k=>{$(k).value=S[k]||'';$(k).oninput=()=>{S[k]=parseFloat($(k).value)||0;save();render()}});
+$('pv').onclick=()=>{cur.m--;if(cur.m<0){cur.m=11;cur.y--}render()};
+$('nx').onclick=()=>{cur.m++;if(cur.m>11){cur.m=0;cur.y++}render()};
+$('today').onclick=()=>{cur={y:now.getFullYear(),m:now.getMonth()};render()};
+function setMarks(dts,type){dts.forEach(dt=>{L=L.filter(x=>x.d!==dt);M[dt]=type});save();render()}
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{if(picked.size)setMarks([...picked],b.dataset.m)});
+document.querySelectorAll('[data-dm]').forEach(b=>b.onclick=()=>{setMarks([sel],b.dataset.dm);openDay(sel)});
+function hrsUI(){
+  document.querySelectorAll('.q,.selq').forEach(b=>{
+    if(!b.dataset.k)b.dataset.k=b.dataset.s==='06:00'?'am':'pm';
+    const s=b.dataset.k==='am'?'06:00':'14:00',t=tm(s)+(S.hrs||6)*60+30,e=pad(Math.floor(t/60)%24)+':'+pad(t%60);
+    b.dataset.s=s;b.dataset.e=e;
+    b.textContent='+ '+(b.dataset.k==='am'?'Délelőtt ':'Délután ')+sh(s)+'–'+sh(e);
+  });
+}
+$('hrs').value=S.hrs||6;$('hrs').onchange=()=>{S.hrs=+$('hrs').value;save();hrsUI()};
+hrsUI();
+render();
+</script>
+</body>
+</html>
